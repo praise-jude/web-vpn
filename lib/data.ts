@@ -211,58 +211,34 @@ export interface SubscriptionPlan {
   features: string[];
 }
 
+// Two tiers only: Freemium (ad-supported, free) and VIP (no ads, flat price).
+// Both get the same feature set -- the difference is ads, not functionality.
+const SHARED_PLAN_FEATURES = [
+  "3 live servers (more coming soon)",
+  "1 device",
+  "Unlimited data",
+  "Threat Blocker",
+  "Multi-Hop routing",
+  "Trusted Trading — add your own trusted sites",
+  "Priority support",
+  "Speed Test",
+  "Max Privacy mode",
+];
+
 export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: "free",
-    name: "Free",
-    price: "$0",
+    name: "Freemium",
+    price: "₦0",
     period: "",
-    features: ["1 device", "3 server locations", "10 GB / month", "Standard support"],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: "$9.99",
-    period: "/month",
-    features: [
-      "5 devices",
-      "All server locations",
-      "Unlimited data",
-      "Threat Blocker",
-      "Multi-Hop routing",
-      "Priority support",
-    ],
-  },
-  {
-    id: "family",
-    name: "Family",
-    price: "$16.99",
-    period: "/month",
-    features: [
-      "10 devices",
-      "All server locations",
-      "Unlimited data",
-      "Threat Blocker",
-      "Multi-Hop routing",
-      "Family sharing (up to 6 accounts)",
-      "Priority support",
-    ],
+    features: ["Includes ads", ...SHARED_PLAN_FEATURES],
   },
   {
     id: "vip",
     name: "VIP",
-    price: "$24.99",
+    price: "₦20,000",
     period: "/month",
-    features: [
-      "Unlimited devices",
-      "All server locations",
-      "Unlimited data",
-      "Threat Blocker",
-      "Multi-Hop routing",
-      "Family sharing (up to 6 accounts)",
-      "Priority support",
-      "Every feature, fully unlocked",
-    ],
+    features: ["No ads", ...SHARED_PLAN_FEATURES],
   },
 ];
 

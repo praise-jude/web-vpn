@@ -170,7 +170,7 @@ export default function RoyalVpnApp() {
   const [trustedServices, setTrustedServices] = useState<TrustedService[]>(initialTrustedServices);
   const [allowTrustedDuringReconnect, setAllowTrustedDuringReconnect] = useState(false);
   const [trustedAuditLog, setTrustedAuditLog] = useState<TrustedServiceAuditEntry[]>([]);
-  const [currentPlanId, setCurrentPlanId] = useState("pro");
+  const [currentPlanId, setCurrentPlanId] = useState("vip");
   const [readNotificationIds, setReadNotificationIds] = useState<Record<string, boolean>>({});
   const { type: networkType } = useNetworkState();
   const prevNetworkTypeRef = useRef<string | null>(null);
@@ -455,7 +455,7 @@ export default function RoyalVpnApp() {
 
   const subscriptionPlanLabel = useMemo(() => {
     const plan = subscriptionPlans.find((p) => p.id === currentPlanId);
-    return plan ? `${plan.name.toUpperCase()} PLAN` : "PRO PLAN";
+    return plan ? `${plan.name.toUpperCase()} PLAN` : `${currentPlanId.toUpperCase()} PLAN`;
   }, [currentPlanId]);
 
   const handleAddTrustedNetwork = useCallback(() => {
