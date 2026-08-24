@@ -21,7 +21,7 @@ export function matchesDomain(hostname: string, service: TrustedService) {
   return service.includeSubdomains && host.endsWith(`.${domain}`);
 }
 
-const KNOWN_BRANDS = ["exness", "forex-ai", "royal-vpn", "royalvpn"];
+const KNOWN_BRANDS = ["royal-vpn", "royalvpn"];
 
 /** Soft heuristic only — flags a domain that name-drops a trusted brand without matching its real domain. Never blocks the add, just warns. */
 export function lookalikeWarning(domain: string, existing: TrustedService[]): string | null {

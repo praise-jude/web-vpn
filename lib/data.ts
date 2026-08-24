@@ -289,24 +289,8 @@ export interface TrustedService {
   builtIn: boolean;
 }
 
-export const initialTrustedServices: TrustedService[] = [
-  {
-    id: "royal-forex-ai",
-    name: "Royal Forex AI",
-    domain: "forex-ai.up.railway.app",
-    includeSubdomains: false,
-    enabled: true,
-    builtIn: true,
-  },
-  {
-    id: "exness",
-    name: "Exness",
-    domain: "exness.com",
-    includeSubdomains: true,
-    enabled: true,
-    builtIn: true,
-  },
-];
+// Empty by default -- add your own trusted domains from the Trusted Trading screen.
+export const initialTrustedServices: TrustedService[] = [];
 
 export interface TabDef {
   key: string;
