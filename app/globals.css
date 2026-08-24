@@ -1,26 +1,76 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-poppins), Arial, Helvetica, sans-serif;
+
+  --color-royal-orange: #ff9300;
+  --color-royal-blue: #000f9a;
+  --color-royal-bg: #030712;
+  --color-royal-green: #22c55e;
+  --color-royal-yellow: #eab308;
+  --color-royal-red: #ef4444;
+  --color-royal-purple: #a855f7;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-royal-bg);
+  color: #fff;
+  font-family: var(--font-sans);
+}
+
+.f-regular {
+  font-weight: 400;
+}
+.f-medium {
+  font-weight: 500;
+}
+.f-semibold {
+  font-weight: 600;
+}
+.f-bold {
+  font-weight: 700;
+}
+.f-extrabold {
+  font-weight: 800;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  width: 100%;
+}
+
+.phone-frame {
+  position: relative;
+  height: 100dvh;
+  background: var(--color-royal-bg);
+}
+
+@media (min-width: 561px) {
+  .app-shell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #05070d, #0a0d1c);
+    padding: 32px;
+  }
+
+  .phone-frame {
+    width: 100%;
+    max-width: 430px;
+    height: min(calc(100dvh - 64px), 900px);
+    border-radius: 40px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  }
 }
