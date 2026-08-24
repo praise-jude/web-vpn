@@ -27,6 +27,7 @@ export default function HomeScreen({
   autoConnect,
   mode,
   onModeChange,
+  disabledModeKeys,
   protocolLabel,
   quality,
   entryServer,
@@ -43,16 +44,17 @@ export default function HomeScreen({
   connected: boolean;
   connecting: boolean;
   autoReconnecting: boolean;
-  server: { city: string; country: string; ping: number };
+  server: { city: string; country: string; ping: number | null };
   durationStr: string;
   showStats: boolean;
   killSwitch: boolean;
   autoConnect: boolean;
   mode: string;
   onModeChange: (key: string) => void;
+  disabledModeKeys: string[];
   protocolLabel: string;
   quality: QualityScoreResult;
-  entryServer: { city: string; ping: number } | null;
+  entryServer: { city: string; ping: number | null } | null;
   networkType: NetworkType;
   protectBanner: string;
   onConnectClick: () => void;
@@ -78,8 +80,8 @@ export default function HomeScreen({
 
   return (
     <div className="px-5">
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-2.5">
+      <div className="royal-home-header flex items-center justify-between mb-5">
+        <div className="royal-home-brand flex items-center gap-2.5">
           <Icon name="shield-halved" size={20} color={colors.orange} />
           <h1 className="f-extrabold text-[19px] tracking-wide text-white">ROYAL-VPN</h1>
         </div>
@@ -149,7 +151,9 @@ export default function HomeScreen({
           </div>
           <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">PING</span>
-            <span className="f-bold text-sm text-white">{isMultiHop && entryServer ? entryServer.ping + server.ping : server.ping} ms</span>
+            <span className="f-bold text-sm text-white">
+              {isMultiHop && entryServer ? (entryServer.ping ?? 0) + (server.ping ?? 0) : (server.ping ?? "—")} ms
+            </span>
           </div>
           <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">PROTOCOL</span>
@@ -158,7 +162,7 @@ export default function HomeScreen({
         </div>
       )}
 
-      <ModeSwitcher mode={mode} onChange={onModeChange} />
+      <ModeSwitcher mode={mode} onChange={onModeChange} disabledKeys={disabledModeKeys} />
 
       <button onClick={onOpenSpeedTest} className="w-full flex items-center gap-2.5 bg-white/6 rounded-xl py-3 px-3.5 mb-3.5 text-left">
         <Icon name="gauge-high" size={14} color={colors.orange} />

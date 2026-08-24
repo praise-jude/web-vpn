@@ -23,17 +23,20 @@ const PHASES: Phase[] = [
 ];
 
 function randomizeResult(key: string, server: Server) {
+  const ping = server.ping ?? 0;
+  const jitter = server.jitter ?? 0;
+  const load = server.load ?? 0;
   switch (key) {
     case "ping":
-      return Math.max(8, Math.round(server.ping + (Math.random() * 6 - 3)));
+      return Math.max(8, Math.round(ping + (Math.random() * 6 - 3)));
     case "jitter":
-      return Math.max(1, Math.round(server.jitter + (Math.random() * 2 - 1)));
+      return Math.max(1, Math.round(jitter + (Math.random() * 2 - 1)));
     case "loss":
       return Math.max(0, +(server.packetLoss + Math.random() * 0.2).toFixed(1));
     case "download":
-      return Math.round(60 + Math.random() * 70 - server.load * 0.3);
+      return Math.round(60 + Math.random() * 70 - load * 0.3);
     case "upload":
-      return Math.round(15 + Math.random() * 25 - server.load * 0.1);
+      return Math.round(15 + Math.random() * 25 - load * 0.1);
     default:
       return 0;
   }

@@ -53,6 +53,12 @@ import {
   FaCircleInfo,
   FaClock,
   FaXmark,
+  FaEarthAfrica,
+  FaEarthEurope,
+  FaEarthAmericas,
+  FaEarthAsia,
+  FaEarthOceania,
+  FaMosque,
 } from "react-icons/fa6";
 import type { IconType } from "react-icons";
 import type { IconName } from "@/lib/data";
@@ -111,6 +117,12 @@ const SOLID: Record<IconName, IconType> = {
   "circle-info": FaCircleInfo,
   clock: FaClock,
   xmark: FaXmark,
+  "earth-africa": FaEarthAfrica,
+  "earth-europe": FaEarthEurope,
+  "earth-americas": FaEarthAmericas,
+  "earth-asia": FaEarthAsia,
+  "earth-oceania": FaEarthOceania,
+  mosque: FaMosque,
 };
 
 export default function Icon({

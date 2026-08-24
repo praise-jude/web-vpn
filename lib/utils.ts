@@ -52,10 +52,10 @@ const MULTI_HOP_OVERHEAD_MS = 15;
 
 export function computeMultiHopQuality(entry: Server, exit: Server) {
   return computeConnectionScore({
-    ping: entry.ping + exit.ping,
+    ping: (entry.ping ?? 0) + (exit.ping ?? 0),
     packetLoss: entry.packetLoss + exit.packetLoss,
     jitter: Math.max(entry.jitter, exit.jitter),
-    load: Math.round((entry.load + exit.load) / 2),
+    load: Math.round(((entry.load ?? 0) + (exit.load ?? 0)) / 2),
     latencyPenalty: MULTI_HOP_OVERHEAD_MS,
   });
 }
@@ -73,7 +73,10 @@ export function formatRelativeTime(ts: number) {
 
 export function rankServers(list: Server[], latencyPenalty = 0) {
   return list
-    .map((sv) => ({ ...sv, quality: computeConnectionScore({ ...sv, latencyPenalty }) }))
+    .map((sv) => ({
+      ...sv,
+      quality: computeConnectionScore({ ping: sv.ping ?? 0, load: sv.load ?? 0, packetLoss: sv.packetLoss, jitter: sv.jitter, latencyPenalty }),
+    }))
     .sort((a, b) => b.quality.score - a.quality.score);
 }
 

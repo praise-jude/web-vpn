@@ -52,38 +52,69 @@ export type IconName =
   | "wand-magic-sparkles"
   | "circle-info"
   | "clock"
-  | "xmark";
+  | "xmark"
+  | "earth-africa"
+  | "earth-europe"
+  | "earth-americas"
+  | "earth-asia"
+  | "earth-oceania"
+  | "mosque";
 
+/** Live server status/ping/load comes only from the real backend (see lib/servers.ts) — never hardcoded here. */
 export interface Server {
   id: string;
-  country: string;
   city: string;
-  ping: number;
-  load: number;
+  country: string;
+  flag: string;
+  vip: boolean;
+  live: boolean;
+  status: string;
+  region: string;
+  ping: number | null;
+  load: number | null;
   packetLoss: number;
   jitter: number;
 }
 
-export const servers: Server[] = [
-  { id: "lagos", country: "Nigeria", city: "Lagos", ping: 22, load: 34, packetLoss: 0.1, jitter: 2 },
-  { id: "london", country: "United Kingdom", city: "London", ping: 48, load: 51, packetLoss: 0.3, jitter: 4 },
-  { id: "newyork", country: "United States", city: "New York", ping: 61, load: 40, packetLoss: 0.2, jitter: 5 },
-  { id: "california", country: "United States", city: "California", ping: 74, load: 28, packetLoss: 0.1, jitter: 3 },
-  { id: "frankfurt", country: "Germany", city: "Frankfurt", ping: 39, load: 62, packetLoss: 0.4, jitter: 6 },
-  { id: "toronto", country: "Canada", city: "Toronto", ping: 58, load: 20, packetLoss: 0.1, jitter: 3 },
-  { id: "paris", country: "France", city: "Paris", ping: 44, load: 45, packetLoss: 0.2, jitter: 4 },
-  { id: "singapore", country: "Singapore", city: "Singapore", ping: 120, load: 33, packetLoss: 0.3, jitter: 7 },
-  { id: "tokyo", country: "Japan", city: "Tokyo", ping: 135, load: 30, packetLoss: 0.2, jitter: 6 },
+export interface Region {
+  key: string;
+  label: string;
+  icon: IconName;
+}
+
+export const regions: Region[] = [
+  { key: "all", label: "All", icon: "globe" },
+  { key: "africa", label: "Africa", icon: "earth-africa" },
+  { key: "europe", label: "Europe", icon: "earth-europe" },
+  { key: "americas", label: "Americas", icon: "earth-americas" },
+  { key: "asia", label: "Asia", icon: "earth-asia" },
+  { key: "middleEast", label: "Middle East", icon: "mosque" },
+  { key: "oceania", label: "Oceania", icon: "earth-oceania" },
 ];
+
+// Server locations are fetched live from the backend (GET /servers) -- this
+// map only supplies the region grouping used for the filter chips, keyed by
+// the real server ids the backend returns. No ping/load/status is hardcoded
+// here; that all comes from the pilot node's real health check or is
+// honestly marked "Coming Soon".
+export const serverRegionMap: Record<string, string> = {
+  "pilot-nyc1": "americas",
+  london: "europe",
+  frankfurt: "europe",
+  lag1: "africa",
+  sin1: "asia",
+  syd1: "oceania",
+};
 
 export interface ConnectionMode {
   key: string;
   label: string;
   icon: IconName;
   tagline: string;
-  protocolLabel: string;
+  hopLabel: string;
   hops: number;
   latencyPenalty: number;
+  tradeoff: { privacy: string; speed: string; latency: string };
 }
 
 export const connectionModes: ConnectionMode[] = [
@@ -92,27 +123,30 @@ export const connectionModes: ConnectionMode[] = [
     label: "Speed",
     icon: "bolt",
     tagline: "Single-hop · fastest server · minimal overhead",
-    protocolLabel: "WireGuard · Single-hop",
+    hopLabel: "Single-hop",
     hops: 1,
     latencyPenalty: 0,
+    tradeoff: { privacy: "STANDARD", speed: "HIGHEST", latency: "LOWEST" },
   },
   {
     key: "balanced",
     label: "Balanced",
     icon: "scale-balanced",
     tagline: "Fast server · security filtering · leak protection",
-    protocolLabel: "WireGuard · Balanced",
+    hopLabel: "Single-hop",
     hops: 1,
     latencyPenalty: 4,
+    tradeoff: { privacy: "ENHANCED", speed: "HIGH", latency: "LOW" },
   },
   {
     key: "privacy",
     label: "Max Privacy",
     icon: "user-secret",
     tagline: "Multi-hop · strict DNS · maximum privacy",
-    protocolLabel: "WireGuard · Multi-hop",
+    hopLabel: "Multi-hop",
     hops: 2,
     latencyPenalty: 22,
+    tradeoff: { privacy: "HIGH", speed: "MODERATE", latency: "HIGHER" },
   },
 ];
 
@@ -212,6 +246,22 @@ export const subscriptionPlans: SubscriptionPlan[] = [
       "Multi-Hop routing",
       "Family sharing (up to 6 accounts)",
       "Priority support",
+    ],
+  },
+  {
+    id: "vip",
+    name: "VIP",
+    price: "$24.99",
+    period: "/month",
+    features: [
+      "Unlimited devices",
+      "All server locations",
+      "Unlimited data",
+      "Threat Blocker",
+      "Multi-Hop routing",
+      "Family sharing (up to 6 accounts)",
+      "Priority support",
+      "Every feature, fully unlocked",
     ],
   },
 ];

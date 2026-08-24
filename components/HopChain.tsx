@@ -15,14 +15,20 @@ function Node({ icon, label, sublabel, highlight }: { icon: IconName; label: str
   );
 }
 
-export default function HopChain({ entry, exit }: { entry: { city: string; ping: number }; exit: { city: string; ping: number } }) {
+export default function HopChain({
+  entry,
+  exit,
+}: {
+  entry: { city: string; ping: number | null };
+  exit: { city: string; ping: number | null };
+}) {
   return (
     <div className="flex items-start justify-between px-1">
       <Node icon="user" label="You" />
       <Icon name="chevron-right" size={11} color="rgba(255,255,255,0.45)" className="mt-3.5" />
-      <Node icon="door-open" label={entry.city} sublabel={`${entry.ping} ms`} highlight />
+      <Node icon="door-open" label={entry.city} sublabel={`${entry.ping ?? "—"} ms`} highlight />
       <Icon name="chevron-right" size={11} color="rgba(255,255,255,0.45)" className="mt-3.5" />
-      <Node icon="door-closed" label={exit.city} sublabel={`${exit.ping} ms`} highlight />
+      <Node icon="door-closed" label={exit.city} sublabel={`${exit.ping ?? "—"} ms`} highlight />
       <Icon name="chevron-right" size={11} color="rgba(255,255,255,0.45)" className="mt-3.5" />
       <Node icon="globe" label="Internet" />
     </div>

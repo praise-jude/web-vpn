@@ -14,6 +14,8 @@
 
 html,
 body {
+  height: 100%;
+  overflow: hidden;
   background: var(--color-royal-bg);
   color: #fff;
   font-family: var(--font-sans);
@@ -45,7 +47,7 @@ body {
 }
 
 .app-shell {
-  min-height: 100dvh;
+  height: 100dvh;
   width: 100%;
 }
 
@@ -55,7 +57,8 @@ body {
   background: var(--color-royal-bg);
 }
 
-@media (min-width: 561px) {
+/* Tablet-ish middle range only: a centered phone card on a dark backdrop. */
+@media (min-width: 561px) and (max-width: 900px) {
   .app-shell {
     display: flex;
     align-items: center;
@@ -72,5 +75,52 @@ body {
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* Desktop: a real sidebar + content layout filling the window, not a phone mockup. */
+@media (min-width: 901px) {
+  .royal-app-row {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.royal-sidebar {
+  display: none;
+}
+.royal-tabbar {
+  display: flex;
+}
+.royal-content-col {
+  width: 100%;
+}
+.royal-scroll-area {
+  padding-top: 8px;
+  padding-bottom: 100px;
+}
+
+@media (min-width: 901px) {
+  .royal-sidebar {
+    display: flex;
+  }
+  .royal-tabbar {
+    display: none;
+  }
+  .royal-content-col {
+    max-width: 720px;
+  }
+  .royal-scroll-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 32px;
+    padding-bottom: 32px;
+  }
+  .royal-home-brand {
+    display: none;
+  }
+  .royal-home-header {
+    justify-content: flex-end;
   }
 }

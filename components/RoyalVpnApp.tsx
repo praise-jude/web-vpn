@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TabBar from "./TabBar";
+import Sidebar from "./Sidebar";
 import HomeScreen from "./screens/HomeScreen";
 import ServersScreen from "./screens/ServersScreen";
 import SecurityScreen from "./screens/SecurityScreen";
@@ -19,7 +20,6 @@ import NotificationsScreen, { type AppNotification } from "./screens/Notificatio
 import TrustedServicesScreen, { type TrustedServiceAuditEntry } from "./screens/TrustedServicesScreen";
 import TradingConnectionTestScreen from "./screens/TradingConnectionTestScreen";
 import {
-  servers as initialServers,
   devices as initialDevices,
   connectionModes,
   initialThreatCounts,
@@ -28,11 +28,29 @@ import {
   initialTrustedServices,
   subscriptionPlans,
 } from "@/lib/data";
-import type { ThreatCategory, IconName, TrustedService } from "@/lib/data";
+import type { ThreatCategory, IconName, TrustedService, Server } from "@/lib/data";
 import { colors } from "@/lib/theme";
 import { formatDuration, computeConnectionScore, computeMultiHopQuality, rankServers } from "@/lib/utils";
 import { useNetworkState } from "@/lib/useNetworkState";
 import { isBiometricSupported, verifyBiometric, hasStoredCredential, registerBiometricCredential } from "@/lib/webauthn";
+import { fetchServers } from "@/lib/servers";
+
+// Shown only while the live server list is still loading from the backend --
+// never a stand-in for real ping/load numbers.
+const PLACEHOLDER_SERVER: Server = {
+  id: "",
+  city: "Loading…",
+  country: "",
+  flag: "",
+  vip: false,
+  live: false,
+  status: "LOADING",
+  region: "other",
+  ping: null,
+  load: null,
+  packetLoss: 0,
+  jitter: 0,
+};
 
 const THREAT_CATEGORY_WEIGHTS: [ThreatCategory["key"], number][] = [
   ["ads", 5],
@@ -124,8 +142,10 @@ export default function RoyalVpnApp() {
   const [connected, setConnected] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [seconds, setSeconds] = useState(2538);
-  const [serverId, setServerId] = useState("lagos");
-  const [entryServerId, setEntryServerId] = useState("frankfurt");
+  const [servers, setServers] = useState<Server[]>([]);
+  const [serversLoading, setServersLoading] = useState(true);
+  const [serverId, setServerId] = useState<string | null>(null);
+  const [entryServerId, setEntryServerId] = useState<string | null>(null);
   const [killSwitch, setKillSwitch] = useState(true);
   const [autoConnect, setAutoConnect] = useState(true);
   const [twoFA, setTwoFA] = useState(false);
@@ -177,6 +197,28 @@ export default function RoyalVpnApp() {
       setAppLockEnabled(enabled);
       if (enabled) setUnlocked(false);
     })();
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadServers() {
+      try {
+        const list = await fetchServers();
+        if (cancelled) return;
+        setServers(list);
+        setServerId((prev) => prev || list.find((s) => s.live)?.id || list[0]?.id || null);
+      } catch {
+        // Keep whatever server list we already have; the next poll will retry.
+      } finally {
+        if (!cancelled) setServersLoading(false);
+      }
+    }
+    loadServers();
+    const interval = setInterval(loadServers, 20000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
   useEffect(() => {
@@ -305,8 +347,15 @@ export default function RoyalVpnApp() {
 
   const threatsBlockedToday = useMemo(() => Object.values(threatCounts).reduce((sum, n) => sum + n, 0), [threatCounts]);
 
+  const liveServers = useMemo(() => servers.filter((s) => s.live), [servers]);
+  const server = useMemo(() => servers.find((s) => s.id === serverId) || liveServers[0] || PLACEHOLDER_SERVER, [servers, serverId, liveServers]);
+
   const handleConnectPress = useCallback(() => {
     if (connecting) return;
+    if (!connected && !server.live) {
+      logEvent("disconnect", "No live server is available yet");
+      return;
+    }
     if (connected) {
       setConnected(false);
       setSeconds(0);
@@ -319,51 +368,65 @@ export default function RoyalVpnApp() {
         logEvent("connect", "Connected");
       }, 1400);
     }
-  }, [connected, connecting, logEvent]);
+  }, [connected, connecting, logEvent, server]);
 
   const handleSelectServer = useCallback(
     (id: string) => {
-      const target = initialServers.find((s) => s.id === id);
+      const target = servers.find((s) => s.id === id);
       setServerId(id);
       setEntryServerId((prevEntry) => {
         if (prevEntry !== id) return prevEntry;
-        const fallback = initialServers.find((s) => s.id !== id);
+        const fallback = servers.find((s) => s.id !== id);
         return fallback ? fallback.id : prevEntry;
       });
       if (target) logEvent("server-switch", `Switched exit server to ${target.city}`);
     },
-    [logEvent]
+    [servers, logEvent]
   );
 
-  const handleSelectEntryServer = useCallback((id: string) => {
-    setEntryServerId(id);
-    setServerId((prevExit) => {
-      if (prevExit !== id) return prevExit;
-      const fallback = initialServers.find((s) => s.id !== id);
-      return fallback ? fallback.id : prevExit;
-    });
-  }, []);
+  const handleSelectEntryServer = useCallback(
+    (id: string) => {
+      setEntryServerId(id);
+      setServerId((prevExit) => {
+        if (prevExit !== id) return prevExit;
+        const fallback = servers.find((s) => s.id !== id);
+        return fallback ? fallback.id : prevExit;
+      });
+    },
+    [servers]
+  );
 
-  const server = useMemo(() => initialServers.find((s) => s.id === serverId) || initialServers[0], [serverId]);
-  const entryServer = useMemo(() => initialServers.find((s) => s.id === entryServerId) || initialServers[1], [entryServerId]);
+  const entryServer = useMemo(() => {
+    if (mode !== "privacy") return null;
+    return (
+      liveServers.find((s) => s.id === entryServerId && s.id !== server.id) || liveServers.find((s) => s.id !== server.id) || null
+    );
+  }, [liveServers, entryServerId, server, mode]);
 
   const devices = useMemo(() => initialDevices.filter((d) => !signedOutIds[d.id]), [signedOutIds]);
 
-  const activeMode = connectionModes.find((m) => m.key === mode) || connectionModes[1];
+  const disabledModeKeys = liveServers.length < 2 ? ["privacy"] : [];
+  const effectiveMode = disabledModeKeys.includes(mode) ? "balanced" : mode;
+  const activeMode = connectionModes.find((m) => m.key === effectiveMode) || connectionModes[1];
+  const protocolLabel = `WireGuard · ${activeMode.hopLabel}`;
 
   const quality = useMemo(() => {
-    if (mode === "privacy") return computeMultiHopQuality(entryServer, server);
+    if (!server.live) return { score: 0, label: serversLoading ? "Loading" : "Unavailable", color: "rgba(255,255,255,0.5)" };
+    if (effectiveMode === "privacy" && entryServer) return computeMultiHopQuality(entryServer, server);
     return computeConnectionScore({
-      ping: server.ping,
+      ping: server.ping ?? 0,
       packetLoss: server.packetLoss,
       jitter: server.jitter,
-      load: server.load,
+      load: server.load ?? 0,
       latencyPenalty: activeMode.latencyPenalty,
     });
-  }, [server, entryServer, mode, activeMode]);
+  }, [server, entryServer, effectiveMode, activeMode, serversLoading]);
 
-  const rankedServers = useMemo(() => rankServers(initialServers, activeMode.latencyPenalty), [activeMode]);
-  const bestServer = rankedServers[0];
+  const rankedLiveServers = useMemo(() => rankServers(liveServers, activeMode.latencyPenalty), [liveServers, activeMode]);
+  const bestServer = rankedLiveServers[0] || null;
+  const comingSoonServers = useMemo(() => servers.filter((s) => !s.live), [servers]);
+  const allServersForDisplay = useMemo(() => [...rankedLiveServers, ...comingSoonServers], [rankedLiveServers, comingSoonServers]);
+  const isPaid = currentPlanId !== "free";
 
   const notifications = useMemo<AppNotification[]>(() => {
     const fromEvents: AppNotification[] = networkEvents.map((e) => ({
@@ -489,8 +552,20 @@ export default function RoyalVpnApp() {
   }
 
   return (
-    <div className="relative h-full overflow-hidden">
-      <div className="h-full overflow-y-auto pt-2 pb-[100px]">
+    <div className="royal-app-row relative h-full overflow-hidden">
+      <Sidebar
+        activeTab={tab}
+        onChange={(t) => {
+          setSubScreen(null);
+          setTab(t);
+        }}
+        userEmail="ada.okafor@email.com"
+        planLabel={subscriptionPlanLabel}
+        connected={connected}
+      />
+      <div className="relative flex-1 h-full min-w-0 overflow-hidden">
+      <div className="royal-scroll-area h-full overflow-y-auto">
+      <div className="royal-content-col mx-auto">
         {subScreen === "split-tunnel" ? (
           <SplitTunnelScreen
             vpnApps={vpnApps}
@@ -508,6 +583,7 @@ export default function RoyalVpnApp() {
           />
         ) : subScreen === "multi-hop" ? (
           <MultiHopScreen
+            servers={liveServers}
             entryId={entryServerId}
             exitId={serverId}
             onSelectEntry={handleSelectEntryServer}
@@ -545,8 +621,8 @@ export default function RoyalVpnApp() {
         ) : subScreen === "trading-connection-test" ? (
           <TradingConnectionTestScreen
             services={trustedServices}
-            vpnServerLabel={`${server.city}, ${server.country}`}
-            protocolLabel={activeMode.protocolLabel}
+            vpnServerLabel={server.country ? `${server.city}, ${server.country}` : server.city}
+            protocolLabel={protocolLabel}
             onBack={() => setSubScreen("trusted-services")}
           />
         ) : subScreen === "plans" ? (
@@ -577,11 +653,12 @@ export default function RoyalVpnApp() {
                 showStats={connected}
                 killSwitch={killSwitch}
                 autoConnect={autoConnect}
-                mode={mode}
+                mode={effectiveMode}
                 onModeChange={setMode}
-                protocolLabel={activeMode.protocolLabel}
+                disabledModeKeys={disabledModeKeys}
+                protocolLabel={protocolLabel}
                 quality={quality}
-                entryServer={mode === "privacy" ? entryServer : null}
+                entryServer={entryServer}
                 networkType={networkType}
                 protectBanner={protectBanner}
                 onConnectClick={handleConnectPress}
@@ -595,13 +672,16 @@ export default function RoyalVpnApp() {
             )}
             {tab === "servers" && (
               <ServersScreen
-                servers={rankedServers}
-                selectedId={server.id}
+                servers={allServersForDisplay}
+                serversLoading={serversLoading}
+                selectedId={server.id || null}
                 favorites={favorites}
                 onSelect={handleSelectServer}
                 onToggleFav={(id) => setFavorites((f) => ({ ...f, [id]: !f[id] }))}
                 bestServer={bestServer}
                 onUseRecommended={handleSelectServer}
+                isPaid={isPaid}
+                onRequireUpgrade={() => setSubScreen("plans")}
               />
             )}
             {tab === "security" && (
@@ -638,13 +718,17 @@ export default function RoyalVpnApp() {
           </>
         )}
       </div>
-      <TabBar
-        activeTab={tab}
-        onChange={(t) => {
-          setSubScreen(null);
-          setTab(t);
-        }}
-      />
+      </div>
+      </div>
+      <div className="royal-tabbar">
+        <TabBar
+          activeTab={tab}
+          onChange={(t) => {
+            setSubScreen(null);
+            setTab(t);
+          }}
+        />
+      </div>
     </div>
   );
 }
