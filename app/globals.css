@@ -41,6 +41,22 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Every button gets real, immediate tap feedback and no 300ms tap delay --
+   without this, taps on a real touchscreen can feel unresponsive even
+   though the click handler fires correctly. */
+button {
+  touch-action: manipulation;
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+button:active {
+  opacity: 0.65;
+  transform: scale(0.97);
+}
+button:disabled:active {
+  opacity: 1;
+  transform: none;
+}
+
 ::-webkit-scrollbar {
   width: 0;
   height: 0;

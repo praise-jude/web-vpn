@@ -41,17 +41,17 @@ export default function ModeSwitcher({
       </p>
 
       <div className="flex items-center justify-between bg-white/6 rounded-[10px] py-2 mt-2.5">
-        <div className="flex-1 flex flex-col items-center">
+        <div className="flex-1 flex flex-col items-center justify-center">
           <span className="f-regular text-[8.5px] text-white/45 tracking-wide mb-0.5">PRIVACY</span>
           <span className="f-bold text-[10.5px] text-white">{active.tradeoff.privacy}</span>
         </div>
         <div className="w-px h-5 bg-white/8" />
-        <div className="flex-1 flex flex-col items-center">
+        <div className="flex-1 flex flex-col items-center justify-center">
           <span className="f-regular text-[8.5px] text-white/45 tracking-wide mb-0.5">SPEED</span>
           <span className="f-bold text-[10.5px] text-white">{active.tradeoff.speed}</span>
         </div>
         <div className="w-px h-5 bg-white/8" />
-        <div className="flex-1 flex flex-col items-center">
+        <div className="flex-1 flex flex-col items-center justify-center">
           <span className="f-regular text-[8.5px] text-white/45 tracking-wide mb-0.5">LATENCY</span>
           <span className="f-bold text-[10.5px] text-white">{active.tradeoff.latency}</span>
         </div>

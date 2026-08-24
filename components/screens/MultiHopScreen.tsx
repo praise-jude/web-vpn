@@ -102,11 +102,11 @@ export default function MultiHopScreen({
         </div>
 
         <div className="flex gap-2.5 mb-3.5">
-          <div className="flex-1 bg-white/5 rounded-2xl p-3.5 flex flex-col items-center">
+          <div className="flex-1 bg-white/5 rounded-2xl p-3.5 flex flex-col items-center justify-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">COMBINED PING</span>
             <span className="f-bold text-sm text-white">{(entry.ping ?? 0) + (exit.ping ?? 0)} ms</span>
           </div>
-          <div className="flex-1 bg-white/5 rounded-2xl p-3.5 flex flex-col items-center">
+          <div className="flex-1 bg-white/5 rounded-2xl p-3.5 flex flex-col items-center justify-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">QUALITY</span>
             <span className="f-bold text-sm" style={{ color: quality.color }}>
               {quality.score}% · {quality.label}
@@ -115,17 +115,17 @@ export default function MultiHopScreen({
         </div>
 
         <div className="flex items-center justify-between bg-white/6 rounded-[10px] py-2.5 mb-[22px]">
-          <div className="flex-1 flex flex-col items-center">
+          <div className="flex-1 flex flex-col items-center justify-center">
             <span className="f-regular text-[8.5px] text-white/45 tracking-wide mb-0.5">PRIVACY</span>
             <span className="f-bold text-[10.5px] text-white">{tradeoff.privacy}</span>
           </div>
           <div className="w-px h-5 bg-white/8" />
-          <div className="flex-1 flex flex-col items-center">
+          <div className="flex-1 flex flex-col items-center justify-center">
             <span className="f-regular text-[8.5px] text-white/45 tracking-wide mb-0.5">SPEED</span>
             <span className="f-bold text-[10.5px] text-white">{tradeoff.speed}</span>
           </div>
           <div className="w-px h-5 bg-white/8" />
-          <div className="flex-1 flex flex-col items-center">
+          <div className="flex-1 flex flex-col items-center justify-center">
             <span className="f-regular text-[8.5px] text-white/45 tracking-wide mb-0.5">LATENCY</span>
             <span className="f-bold text-[10.5px] text-white">{tradeoff.latency}</span>
           </div>

@@ -145,17 +145,17 @@ export default function HomeScreen({
 
       {showStats && (
         <div className="flex gap-2.5 mb-3.5">
-          <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center">
+          <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center justify-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">DURATION</span>
             <span className="f-bold text-sm text-white">{durationStr}</span>
           </div>
-          <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center">
+          <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center justify-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">PING</span>
             <span className="f-bold text-sm text-white">
               {isMultiHop && entryServer ? (entryServer.ping ?? 0) + (server.ping ?? 0) : (server.ping ?? "—")} ms
             </span>
           </div>
-          <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center">
+          <div className="flex-1 bg-white/6 rounded-2xl py-3.5 px-1.5 flex flex-col items-center justify-center">
             <span className="f-regular text-[10px] text-white/50 tracking-wide mb-1">PROTOCOL</span>
             <span className="f-bold text-[10.5px] text-white text-center">{protocolLabel}</span>
           </div>

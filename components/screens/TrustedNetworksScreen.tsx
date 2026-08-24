@@ -30,7 +30,7 @@ export default function TrustedNetworksScreen({
               <div key={n.id} className={`flex items-center gap-3 py-3.5 px-4 ${i < networks.length - 1 ? "border-b border-white/8" : ""}`}>
                 <Icon name="wifi" size={16} color={colors.orange} className="w-5 shrink-0" />
                 <span className="flex-1 f-semibold text-sm text-white">{n.name}</span>
-                <button onClick={() => onRemove(n.id)} aria-label={`Remove ${n.name}`}>
+                <button onClick={() => onRemove(n.id)} aria-label={`Remove ${n.name}`} className="p-2 -m-2">
                   <Icon name="trash" size={14} color={colors.red} />
                 </button>
               </div>

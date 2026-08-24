@@ -112,7 +112,7 @@ export default function TrustedServicesScreen({
                   <button
                     onClick={() => setConfirmRemoveId(service.id)}
                     aria-label={`Remove ${service.name}`}
-                    className="shrink-0"
+                    className="shrink-0 p-2 -m-2"
                   >
                     <Icon name="trash" size={13} color="rgba(255,255,255,0.35)" />
                   </button>

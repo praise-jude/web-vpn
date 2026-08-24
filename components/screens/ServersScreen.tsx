@@ -94,7 +94,7 @@ export default function ServersScreen({
             className="flex-1 f-regular text-sm text-white placeholder:text-white/40 bg-transparent outline-none min-w-0"
           />
           {query.length > 0 && (
-            <button onClick={() => setQuery("")} aria-label="Clear search">
+            <button onClick={() => setQuery("")} aria-label="Clear search" className="p-2 -m-2">
               <Icon name="circle-xmark" size={14} color="rgba(255,255,255,0.4)" />
             </button>
           )}
@@ -191,6 +191,7 @@ export default function ServersScreen({
             <span
               role="button"
               tabIndex={0}
+              className="p-2 -m-2 transition-transform active:scale-90 active:opacity-70"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleFav(sv.id);
